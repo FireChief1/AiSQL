@@ -1,0 +1,314 @@
+/* ===========================================================================
+   AiSQL — Modern dark UI.
+   Inspired by Linear / Vercel / Cursor: refined dark base, sky-400 accent,
+   subtle gradients, generous spacing, sharp typography.
+   =========================================================================== */
+
+:root {
+  /* Base surfaces */
+  --bg-base:     #0a0a0c;
+  --bg-surface:  #131316;
+  --bg-elevated: #1a1a1f;
+  --bg-input:    #16161a;
+  --bg-hover:    #1f1f24;
+
+  /* Text */
+  --text-primary:   #fafafa;
+  --text-secondary: #a4a4ad;
+  --text-muted:     #6b6b75;
+  --text-faint:     #4a4a52;
+
+  /* Borders */
+  --border-subtle:  #22222a;
+  --border-default: #2c2c35;
+  --border-strong:  #3a3a45;
+  --border-accent:  rgba(56,189,248,0.30);
+
+  /* Accents — sky-400 for "data" feel, with violet flourish */
+  --accent:        #38bdf8;
+  --accent-bright: #7dd3fc;
+  --accent-dim:    #0ea5e9;
+  --accent-bg:     rgba(56,189,248,0.10);
+  --accent-bg-2:   rgba(56,189,248,0.18);
+
+  /* Status colors */
+  --success:       #34d399;
+  --success-bg:    rgba(52,211,153,0.10);
+  --success-border:rgba(52,211,153,0.25);
+  --error:         #fb7185;
+  --error-bg:      rgba(251,113,133,0.10);
+  --error-border:  rgba(251,113,133,0.25);
+  --warning:       #fbbf24;
+  --warning-bg:    rgba(251,191,36,0.10);
+  --info:          #60a5fa;
+  --info-bg:       rgba(96,165,250,0.10);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-glow: 0 0 0 1px var(--border-accent), 0 6px 20px rgba(56,189,248,0.15);
+
+  /* Radii */
+  --r-sm: 6px;
+  --r:    10px;
+  --r-lg: 14px;
+}
+
+/* ===========================================================================
+   Reset + base typography
+   =========================================================================== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(56,189,248,0.05), transparent 50%),
+    radial-gradient(circle at 80% 110%, rgba(167,139,250,0.04), transparent 50%),
+    var(--bg-base);
+}
+
+code, pre, .mono {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-size: 0.9em;
+  font-feature-settings: 'liga' 0;
+}
+
+/* ===========================================================================
+   Surface classes (replace .glass)
+   =========================================================================== */
+.glass {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  backdrop-filter: none !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-md);
+}
+
+/* Soft accent border instead of multi-color gradient */
+.gradient-border { position: relative; }
+.gradient-border::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--accent-bright), transparent 60%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent) 50%, #a78bfa 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.bg-mesh { background: transparent !important; }
+
+/* ===========================================================================
+   Buttons
+   =========================================================================== */
+button {
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.005em;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+}
+
+/* Primary gradient button (login, send) */
+button.bg-gradient-to-br {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%) !important;
+  color: #fff !important;
+  border: 1px solid var(--accent-bright);
+  border-radius: var(--r) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 4px rgba(0,0,0,0.2);
+}
+button.bg-gradient-to-br:hover {
+  background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent) 100%) !important;
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+button.bg-gradient-to-br:active {
+  transform: translateY(0);
+}
+button.bg-gradient-to-br:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* ===========================================================================
+   Inputs
+   =========================================================================== */
+input, textarea, select {
+  font-family: inherit !important;
+  background: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--r) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* ===========================================================================
+   Tailwind color remap (so existing class soup looks coherent)
+   =========================================================================== */
+.text-white, .text-gray-100, .text-gray-200 { color: var(--text-primary) !important; }
+.text-gray-300                              { color: var(--text-secondary) !important; }
+.text-gray-400                              { color: var(--text-secondary) !important; }
+.text-gray-500                              { color: var(--text-muted) !important; }
+.text-gray-600, .text-gray-700              { color: var(--text-faint) !important; }
+
+.text-violet-100, .text-violet-200, .text-violet-300, .text-violet-400 { color: var(--accent-bright) !important; }
+.text-blue-300,   .text-blue-400                                       { color: var(--accent) !important; }
+.text-emerald-300, .text-emerald-400                                    { color: var(--success) !important; }
+.text-red-300,    .text-red-400                                         { color: var(--error) !important; }
+.text-pink-300,   .text-pink-400                                        { color: #f472b6 !important; }
+.text-amber-300,  .text-amber-400, .text-orange-300                     { color: var(--warning) !important; }
+
+.border-violet-400\/20, .border-violet-400\/30, .border-violet-400\/40,
+.border-blue-400\/30,
+.border-white\/5, .border-white\/10                                     { border-color: var(--border-subtle) !important; }
+.border-emerald-500\/20, .border-emerald-500\/30                        { border-color: var(--success-border) !important; }
+.border-red-500\/20                                                     { border-color: var(--error-border) !important; }
+.border-red-500                                                          { border-color: var(--error) !important; }
+
+.bg-violet-500\/10, .bg-violet-500\/20, .bg-violet-500\/30,
+.bg-blue-500\/10, .bg-blue-500\/20                                       { background-color: var(--accent-bg) !important; }
+.bg-emerald-500\/5, .bg-emerald-500\/10, .bg-emerald-500\/20             { background-color: var(--success-bg) !important; }
+.bg-red-500\/5, .bg-red-500\/10, .bg-red-500\/20                         { background-color: var(--error-bg) !important; }
+.bg-amber-500\/20                                                        { background-color: var(--warning-bg) !important; }
+.bg-pink-500\/20                                                         { background-color: rgba(244,114,182,0.10) !important; }
+
+/* From-violet to-blue avatar / accent surfaces */
+.from-violet-500\/10.to-blue-500\/5,
+.from-violet-500\/10                       { background: linear-gradient(135deg, var(--accent-bg-2), var(--accent-bg)) !important; }
+.from-violet-500.to-blue-500              { background: linear-gradient(135deg, var(--accent), var(--accent-dim)) !important; }
+
+/* Header bg */
+header.bg-black\/30 {
+  background: rgba(10,10,12,0.7) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+/* ===========================================================================
+   Status dots
+   =========================================================================== */
+.pulse-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ===========================================================================
+   Scrollbars
+   =========================================================================== */
+.scroll-thin::-webkit-scrollbar      { width: 8px; height: 8px; }
+.scroll-thin::-webkit-scrollbar-track{ background: transparent; }
+.scroll-thin::-webkit-scrollbar-thumb{
+  background: var(--border-default);
+  border-radius: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ===========================================================================
+   Animations
+   =========================================================================== */
+.typing::after {
+  content: "▎";
+  animation: blink 1s steps(1) infinite;
+  color: var(--accent);
+  margin-left: 2px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.fade-in { animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================================================================
+   Code blocks
+   =========================================================================== */
+pre {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--r) !important;
+  padding: 12px !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+code { color: var(--text-primary); }
+
+/* ===========================================================================
+   Result tables
+   =========================================================================== */
+table { color: var(--text-secondary); font-size: 13px; }
+th {
+  color: var(--text-muted) !important;
+  border-color: var(--border-subtle) !important;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+td { color: var(--text-primary) !important; border-color: var(--border-subtle) !important; }
+tbody tr:hover { background: var(--bg-hover); }
+
+/* ===========================================================================
+   Subtle entrance for floating elements
+   =========================================================================== */
+#login-overlay > div,
+#toast-host > div { animation: rise 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* Login overlay backdrop — refined blur */
+#login-overlay {
+  background: rgba(0,0,0,0.7) !important;
+  backdrop-filter: blur(8px) saturate(140%);
+}
+
+/* ===========================================================================
+   Misc polish
+   =========================================================================== */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent-bg-2);
+  color: var(--text-primary);
+}

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<title>AiSQL - Multi-User SQL Agent</title>
+<link rel="stylesheet" href="/static/style.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+/>
+</head>
+<body class="bg-mesh min-h-screen">
+
+<header class="border-b border-white/5 bg-black/30 backdrop-blur-lg sticky top-0 z-10">
+  <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center font-bold text-white">
+        Ch
+      </div>
+      <div>
+        <h1 class="text-lg font-semibold">
+          <span class="gradient-text">AiSQL</span>
+          <span class="text-gray-400 font-normal text-sm ml-1">/ Multi-User SQL Agent</span>
+        </h1>
+        <p class="text-xs text-gray-500">PostgreSQL · LangChain · MCP · Two-layer Supervisor · RBAC</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4 text-xs">
+      <div class="flex items-center gap-2"><span id="dot-db" class="pulse-dot text-gray-500"></span><span>Postgres</span></div>
+      <div class="flex items-center gap-2"><span id="dot-mcp" class="pulse-dot text-gray-500"></span><span>MCP Server</span></div>
+      <div class="flex items-center gap-2"><span id="dot-llm" class="pulse-dot text-gray-500"></span><span>Ollama</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1600px] mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+  <!-- LEFT: ChatGPT-style conversation sidebar -->
+  <aside class="lg:col-span-3 flex flex-col gap-3" style="height: calc(100vh - 140px);">
+    <!-- Top: identity strip -->
+    <div class="glass gradient-border rounded-2xl p-4 flex items-center justify-between">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
+          <span id="me-initial">·</span>
+        </div>
+        <div class="min-w-0">
+          <p id="me-user" class="text-sm font-semibold text-gray-100 truncate">-</p>
+          <p id="me-role" class="text-[11px] text-gray-500 truncate">-</p>
+        </div>
+      </div>
+      <button id="btn-logout" title="Cikis" class="p-1.5 text-gray-500 hover:text-red-400 transition rounded">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- New conversation button -->
+    <button id="btn-new-conv" class="glass rounded-xl px-4 py-2.5 text-sm text-left text-gray-200 hover:bg-white/5 transition flex items-center gap-2 border border-violet-400/20 hover:border-violet-400/40">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Yeni Konusma
+    </button>
+
+    <!-- Threads list -->
+    <div class="glass rounded-2xl flex-1 flex flex-col min-h-0">
+      <div class="px-4 py-2.5 border-b border-white/5 flex items-center justify-between">
+        <h2 class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Konusmalar</h2>
+        <button id="btn-threads-refresh" class="text-[10px] text-gray-500 hover:text-violet-400 transition">Yenile</button>
+      </div>
+      <div class="px-2 pt-2">
+        <div class="relative">
+          <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.2-5.2M10 17a7 7 0 100-14 7 7 0 000 14z"/>
+          </svg>
+          <input
+            id="threads-search"
+            type="text"
+            placeholder="Konusmalarda ara..."
+            class="w-full bg-black/30 border border-white/5 rounded-lg pl-8 pr-2 py-1.5 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-violet-400/40 transition"
+          />
+        </div>
+      </div>
+      <div id="threads-list" class="flex-1 overflow-y-auto scroll-thin p-2 space-y-1">
+        <div class="text-center text-gray-500 text-xs py-6">Yukleniyor...</div>
+      </div>
+    </div>
+
+    <!-- Collapsible role + security info -->
+    <details class="glass rounded-2xl">
+      <summary class="px-4 py-2.5 text-xs uppercase tracking-wider text-gray-500 font-semibold cursor-pointer hover:text-gray-300 transition select-none flex items-center justify-between">
+        <span>Yetki & Guvenlik</span>
+        <span class="text-gray-600">▾</span>
+      </summary>
+      <div class="px-4 pb-3 space-y-3">
+        <div class="p-3 rounded-lg bg-gradient-to-br from-violet-500/10 to-blue-500/5 border border-violet-400/20">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] text-gray-400 uppercase tracking-wider">Rol</span>
+            <span id="role-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-violet-500/20 text-violet-300">-</span>
+          </div>
+          <p class="text-[10px] text-gray-500 mb-1.5">Izinli tablolar</p>
+          <div id="role-tables" class="flex flex-wrap gap-1"></div>
+        </div>
+        <ol class="space-y-1.5 text-[11px] text-gray-400">
+          <li class="flex gap-1.5"><span class="text-violet-400">1.</span>Prompt supervisor</li>
+          <li class="flex gap-1.5"><span class="text-violet-400">2.</span>RBAC - prompt</li>
+          <li class="flex gap-1.5"><span class="text-violet-400">3.</span>LangChain agent</li>
+          <li class="flex gap-1.5"><span class="text-violet-400">4.</span>SQL supervisor</li>
+          <li class="flex gap-1.5"><span class="text-violet-400">5.</span>RBAC - SQL (PG roles)</li>
+          <li class="flex gap-1.5"><span class="text-violet-400">6.</span>MCP validator (sqlglot)</li>
+        </ol>
+      </div>
+    </details>
+  </aside>
+
+  <!-- CENTER: Chat -->
+  <section class="lg:col-span-6">
+    <div class="glass gradient-border rounded-2xl flex flex-col" style="height: calc(100vh - 140px);">
+      <div class="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h2 class="font-semibold text-sm">Chat</h2>
+          <span id="thread-badge" class="text-[10px] mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">memory: off</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-new-thread" class="text-xs text-gray-400 hover:text-violet-400 transition">Yeni Konusma</button>
+          <button id="btn-clear" class="text-xs text-gray-400 hover:text-red-400 transition">Temizle</button>
+        </div>
+      </div>
+      <div id="chat" class="flex-1 overflow-y-auto scroll-thin p-5 space-y-4">
+        <div class="text-center px-6 py-12 fade-in">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-blue-500/10 border border-violet-400/30 mb-4">
+            <svg class="w-8 h-8 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1.5 3 4 3h8c2.5 0 4-1 4-3V7c0-2-1.5-3-4-3H8C5.5 4 4 5 4 7zM4 11h16M9 7v14M15 7v14"/>
+            </svg>
+          </div>
+          <h3 class="text-base font-semibold text-gray-100 mb-1">Chinook veritabaniyla konus</h3>
+          <p class="text-xs text-gray-500">Bir soru yaz. Giris yaptiktan sonra ornek sorgular gorunur.</p>
+          <p class="text-[10px] text-gray-600 mt-6">⌘K ile yeni konusma · Hover ile SQL kopyala</p>
+        </div>
+      </div>
+      <div class="border-t border-white/5 p-4">
+        <form id="ask-form" class="flex gap-2 items-end">
+          <textarea id="question" rows="2" placeholder="Ornek: How many artists are there?" class="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-violet-400 transition"></textarea>
+          <button id="btn-ask" type="submit" class="px-5 py-2.5 rounded-lg bg-gradient-to-br from-violet-500 to-blue-500 hover:from-violet-400 hover:to-blue-400 text-white font-medium text-sm transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Gonder
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Audit log -->
+  <aside class="lg:col-span-3">
+    <div class="glass rounded-2xl flex flex-col" style="height: calc(100vh - 140px);">
+      <div class="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+        <h2 class="font-semibold text-sm">Audit Log</h2>
+        <button id="btn-refresh" class="text-xs text-gray-400 hover:text-violet-400 transition">Yenile</button>
+      </div>
+      <div id="audit" class="flex-1 overflow-y-auto scroll-thin p-3 space-y-2 text-xs">
+        <div class="text-center text-gray-500 py-6">Yukleniyor...</div>
+      </div>
+      <div class="border-t border-white/5 px-4 py-2 text-xs text-gray-500">
+        supervisor_audit_log tablosu
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

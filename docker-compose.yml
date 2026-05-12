@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: week7-chinook-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./chinook_pg_serial_pk_proper_naming.sql:/docker-entrypoint-initdb.d/01_chinook.sql:ro
+      - chinook_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  chinook_postgres_data:
